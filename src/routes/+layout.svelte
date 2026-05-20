@@ -62,7 +62,7 @@
 		removeTerminalConnection
 	} from '$lib/utils/connections';
 
-	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL, WEBUI_HOSTNAME, STORAGE_KEY_BACKEND_URL } from '$lib/constants';
+	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL, WEBUI_HOSTNAME, STORAGE_KEY_BACKEND_URL, refreshUrls } from '$lib/constants';
 	import { bestMatchingLanguage, displayFileHandler, getUserTimezone } from '$lib/utils';
 	import { setTextScale } from '$lib/utils/text-scale';
 
@@ -907,11 +907,13 @@
 			return;
 		}
 
+		refreshUrls();
+
 		const storedBackendUrl = localStorage.getItem(STORAGE_KEY_BACKEND_URL);
 		if (!storedBackendUrl) {
 			document.getElementById('splash-screen')?.remove();
 			loaded = true;
-			goto('/setup');
+			window.location.href = '/setup';
 			return;
 		}
 

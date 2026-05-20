@@ -2,9 +2,9 @@ import { browser, dev } from '$app/environment';
 
 export const APP_NAME = 'AdoetzGPT';
 
-const STORAGE_KEY_BACKEND_URL = 'adoetzgpt_backend_url';
+export const STORAGE_KEY_BACKEND_URL = 'adoetzgpt_backend_url';
 
-function getStoredBackendUrl(): string {
+export function getBackendUrl(): string {
 	if (!browser) return '';
 	try {
 		return localStorage.getItem(STORAGE_KEY_BACKEND_URL) || '';
@@ -13,28 +13,55 @@ function getStoredBackendUrl(): string {
 	}
 }
 
-const STORED_BACKEND_URL = getStoredBackendUrl();
+export function setBackendUrl(url: string): void {
+	if (!browser) return;
+	try {
+		localStorage.setItem(STORAGE_KEY_BACKEND_URL, url);
+	} catch {}
+}
+
+export function clearBackendUrl(): void {
+	if (!browser) return;
+	try {
+		localStorage.removeItem(STORAGE_KEY_BACKEND_URL);
+	} catch {}
+}
 
 const DEV_WEBUI_BASE_URL =
-	location.hostname === 'chat2.alids.app'
+	typeof location !== 'undefined' && location.hostname === 'chat2.alids.app'
 		? 'https://chat2api.alids.app'
-		: `http://${location.hostname}:8080`;
+		: typeof location !== 'undefined'
+			? `http://${location.hostname}:8080`
+			: '';
 
-export const WEBUI_HOSTNAME = browser ? (dev ? location.hostname : '') : '';
-export const WEBUI_BASE_URL = browser
-	? dev
-		? DEV_WEBUI_BASE_URL
-		: STORED_BACKEND_URL
-	: '';
-export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
+export let WEBUI_BASE_URL = '';
+export let WEBUI_API_BASE_URL = '';
+export let OLLAMA_API_BASE_URL = '';
+export let OPENAI_API_BASE_URL = '';
+export let AUDIO_API_BASE_URL = '';
+export let IMAGES_API_BASE_URL = '';
+export let RETRIEVAL_API_BASE_URL = '';
+export let WEBUI_HOSTNAME = '';
 
-export const OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama`;
-export const OPENAI_API_BASE_URL = `${WEBUI_BASE_URL}/openai`;
-export const AUDIO_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/audio`;
-export const IMAGES_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/images`;
-export const RETRIEVAL_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/retrieval`;
+export function refreshUrls(): void {
+	if (!browser) return;
 
-export { STORAGE_KEY_BACKEND_URL };
+	if (dev) {
+		WEBUI_BASE_URL = DEV_WEBUI_BASE_URL;
+	} else {
+		WEBUI_BASE_URL = getBackendUrl();
+	}
+
+	WEBUI_HOSTNAME = dev ? (typeof location !== 'undefined' ? location.hostname : '') : '';
+	WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
+	OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama`;
+	OPENAI_API_BASE_URL = `${WEBUI_BASE_URL}/openai`;
+	AUDIO_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/audio`;
+	IMAGES_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/images`;
+	RETRIEVAL_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1/retrieval`;
+}
+
+refreshUrls();
 
 export const WEBUI_VERSION = APP_VERSION;
 export const WEBUI_BUILD_HASH = APP_BUILD_HASH;

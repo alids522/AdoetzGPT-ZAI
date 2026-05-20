@@ -1,0 +1,9 @@
+node_modules/
+build/
+.svelte-kit/
+.android/
+*.apk
+output/
+.env
+.env.*
+!.env.example
